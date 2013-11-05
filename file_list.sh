@@ -18,8 +18,8 @@ nod /dev/console 0600 0 0 c 5 1
 nod /dev/null 0666 0 0 c 1 3
 nod /dev/zero 0666 0 0 c 1 5
 
-file /init /usr/src/initramfs/init 0755 0 0
-file /vars /usr/src/initramfs/vars 0644 0 0
+file /init $(readlink -f $(dirname $0)/init) 0755 0 0
+file /vars $(readlink -f $(dirname $0)/vars) 0644 0 0
 file /etc/mtab /dev/null 0644 0 0
 file /bin/busybox /bin/busybox 0755 0 0
 file /sbin/zfs /sbin/zfs 0755 0 0
