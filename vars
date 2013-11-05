@@ -1,0 +1,3 @@
+ROOT="zroot/GENTOO"
+POOL="zroot"
+INIT="/usr/lib/systemd/systemd"

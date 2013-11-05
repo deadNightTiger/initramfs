@@ -1,0 +1,42 @@
+#!/bin/busybox ash
+
+. /vars
+
+PATH="/sbin:/bin"
+
+/bin/busybox --install -s
+
+fail() {
+  echo $*
+  exec sh
+}
+
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+
+zpool import -fN $POOL || fail "can't import $POOL"
+
+zfs_mount() {
+  VOL="$1"
+  MNTPNT="$2"
+  
+  [ $(zfs get -H -o value mountpoint "$VOL") = 'legacy' ] && MOUNTOPTS="legacy" || MOUNTOPTS="zfsutil"
+  [ $(zfs get -H -o value atime "$VOL") = 'on' ] && MOUNTOPTS="${MOUNTOPTS},atime" || MOUNTOPTS="${MOUNTOPTS},noatime"
+  [ $(zfs get -H -o value exec "$VOL") = 'on' ] || MOUNTOPTS="${MOUNTOPTS},noexec"
+  [ $(zfs get -H -o value devices "$VOL") = 'on' ] || MOUNTOPTS="${MOUNTOPTS},nodev"
+  [ $(zfs get -H -o value xattr "$VOL") = 'on' ] && MOUNTOPTS="${MOUNTOPTS},xattr" || MOUNTOPTS="${MOUNTOPTS},noxattr"
+  [ $(zfs get -H -o value setuid "$VOL") = 'on' ] || MOUNTOPTS="${MOUNTOPTS},nosuid"
+  [ $(zfs get -H -o value readonly "$VOL") = 'on' ] && MOUNTOPTS="${MOUNTOPTS},ro"
+  
+  mount -t zfs -o "$MOUNTOPTS" "$VOL" "$MNTPNT"
+}
+
+zfs_mount $ROOT /newroot || fail "can't mount $ROOT"
+
+if [ -x "/newroot${INIT}" ]; then
+  mount -t tmpfs -o mode=0755,nodev tmpfs /newroot/run
+  exec switch_root /newroot "$INIT"
+fi
+
+fail "no ${INIT}"
