@@ -1,5 +1,6 @@
 #!/bin/sh
 
+[ -e "./vars" ] || ./config.sh
 OUT="${1:-/boot/initramfs.xz}"
 FILELIST=$(mktemp)
 ./file_list.sh > $FILELIST

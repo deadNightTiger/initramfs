@@ -1,3 +1,0 @@
-ROOT="zroot/ROOTFS"
-POOL="zroot"
-INIT="/sbin/init"
