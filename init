@@ -35,7 +35,6 @@ zfs_mount() {
 zfs_mount "${ROOT}" /newroot || fail "can't mount ${ROOT}"
 
 if [ -x "/newroot${INIT}" ]; then
-  mount -t tmpfs -o mode=0755,nodev tmpfs /newroot/run
   exec switch_root /newroot "${INIT}"
 fi
 
