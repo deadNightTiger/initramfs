@@ -15,6 +15,8 @@ mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 mount -t devtmpfs devtmpfs /dev
 
+grep 'initramfs_debug' /proc/cmdline >/dev/null 2>&1 && fail "Debug mode: dropping to shell"
+
 zpool import -fN "${POOL}" || fail "can't import ${POOL}"
 
 zfs_mount() {
