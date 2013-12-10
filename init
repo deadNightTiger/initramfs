@@ -14,6 +14,7 @@ fail() {
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 mount -t devtmpfs devtmpfs /dev
+mount -t tmpfs -o mode=755,nodev tmpfs /run
 
 grep 'initramfs_debug' /proc/cmdline >/dev/null 2>&1 && fail "Debug mode: dropping to shell"
 
@@ -37,9 +38,9 @@ zfs_mount() {
 zfs_mount "${ROOT}" /newroot || fail "can't mount ${ROOT}"
 
 if [ -x "/newroot${INIT}" ]; then
-  mount --move /proc /newroot/proc
-  mount --move /sys /newroot/sys
-  mount --move /dev /newroot/dev
+  for fs in proc sys dev run; do
+    mount --move "/${fs}" "/newroot/${fs}"
+  done
   exec switch_root /newroot "${INIT}"
 fi
 
